@@ -1,0 +1,24 @@
+# Build
+*.exe
+*.dll
+*.o
+*.obj
+
+# Visual Studio
+.vs/
+x64/
+Debug/
+Release/
+*.vcxproj.user
+
+# Temporary
+*.tmp
+*.save
+
+# Binary/Data
+*.bin
+*.data
+
+# Logs
+*.log
+received_key.bin
