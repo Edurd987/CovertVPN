@@ -49,3 +49,7 @@ int  init_covert_ssl(covert_context_t *ctx, int is_server);
 int  connect_covert_tunnel(covert_context_t *ctx, const char *ip, int port);
 int  send_covert_packet(covert_context_t *ctx, const uint8_t *buf, int len);
 void covert_context_free(covert_context_t *ctx);
+int  listen_covert_tunnel(covert_context_t *ctx, const char *ip, int port);
+int  accept_covert_tunnel(covert_context_t *server_ctx, covert_context_t *client_ctx);
+int  recv_covert_packet(covert_context_t *ctx, uint8_t *buf, int max_len);
+
