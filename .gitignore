@@ -22,3 +22,5 @@ Release/
 # Logs
 *.log
 received_key.bin
+server.key
+server.crt
