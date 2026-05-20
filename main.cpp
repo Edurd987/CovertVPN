@@ -7,7 +7,7 @@
 extern "C" {
     #include "network.h"
     #include "encoding.h"
-    #include "common.h"
+   
 }
 
 // Используем твой XOR ключ

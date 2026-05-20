@@ -9,7 +9,6 @@
 // Только наши заголовки оборачиваем в extern "C"
 extern "C" {
     #include "encoding.h"
-    #include "common.h"
     #include "network.h"
 }
 

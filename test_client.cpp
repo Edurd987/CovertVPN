@@ -6,7 +6,6 @@
 extern "C" {
     #include "network.h"
     #include "encoding.h"
-    #include "common.h"
 }
 // Используем твой XOR ключ
 u8 xor_key = 0x37;

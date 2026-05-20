@@ -1,53 +1,51 @@
 
+#pragma once
 
-#ifndef NETWORK_H
-#define NETWORK_H
-
-#include <stdint.h>
-
-#ifdef _WIN32
-    #include <winsock2.h>
-    typedef SOCKET net_socket_t;
-#else
-    // Задел для портирования на Linux по твоему совету
-    typedef int net_socket_t;
-    #define INVALID_SOCKET (-1)
-    #define SOCKET_ERROR   (-1)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #endif
 
-/**
- * Инициализация сетевой подсистемы (Winsock для Windows).
- * Должна быть вызвана один раз при старте main().
- */
-int init_network(void);
+#include <winsock2.h>
+#include <windows.h>
+#include <stdint.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
-/**
- * Очистка сетевых ресурсов перед завершением работы.
- */
+/* ─── Базовые типы ─────────────────────────────────────── */
+#include "types.h" // Устранено дублирование. Все типы (u8, u16, u32, u64) теперь здесь.
+
+/* ─── Константы ────────────────────────────────────────── */
+#ifndef MAX_PACKET_SIZE
+#define MAX_PACKET_SIZE 4096
+#endif
+
+#if MAX_PACKET_SIZE > 65535
+#error "MAX_PACKET_SIZE is dangerously large"
+#endif
+
+#define HTTPS_STANDARD_MTU 1460
+
+/* ─── Режимы маскировки ────────────────────────────────── */
+typedef enum {
+    MASK_HTTPS_VALID = 0,
+    MASK_WEBSOCKET   = 1,
+    MASK_PURE_NOISE  = 2
+} covert_mask_mode_t;
+
+/* ─── Контекст безопасности ────────────────────────────── */
+typedef struct {
+    SSL_CTX            *ssl_ctx;
+    SSL                *ssl_handle;
+    SOCKET              socket_fd;        // UINT_PTR, безопасен на x64
+    covert_mask_mode_t  mask_mode;
+    char                fake_sni[256];    // Только через strncpy + null-term
+} covert_context_t;
+
+/* ─── Прототипы ────────────────────────────────────────── */
+int  init_network(void);
 void cleanup_network(void);
-
-/**
- * Установка TCP-соединения в неблокирующем режиме.
- * Поддерживает Dual-Stack IPv4/IPv6.
- * @return 0 при успехе, -1 при ошибке.
- */
-int connect_tcp(net_socket_t *s, const char* ip, int port);
-
-/**
- * Ожидание завершения соединения для неблокирующего сокета.
- */
-int wait_for_connect(net_socket_t s, long timeout_ms);
-
-/**
- * Отправка пакета с применением адаптивного микросекундного джиттера (L4).
- * Использует RAND_bytes для генерации интервалов.
- */
-int send_stealth_packet(net_socket_t s, const uint8_t* buf, int len);
-
-/**
- * Высокоточная микросекундная задержка.
- */
 void stealth_jitter_us(long long microseconds);
-
-#endif // NETWORK_H
-
+int  init_covert_ssl(covert_context_t *ctx, int is_server);
+int  connect_covert_tunnel(covert_context_t *ctx, const char *ip, int port);
+int  send_covert_packet(covert_context_t *ctx, const uint8_t *buf, int len);
+void covert_context_free(covert_context_t *ctx);
