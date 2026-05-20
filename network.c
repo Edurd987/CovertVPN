@@ -210,6 +210,20 @@ int init_covert_ssl(covert_context_t *ctx, int is_server) {
         }
     }
     SSL_CTX_set_ecdh_auto(ctx->ssl_ctx, 1);
+    if (is_server) {
+        if (SSL_CTX_use_certificate_file(ctx->ssl_ctx, "server.crt", SSL_FILETYPE_PEM) <= 0) {
+            fprintf(stderr, "[-] Failed to load certificate.\n");
+            SSL_CTX_free(ctx->ssl_ctx);
+            ctx->ssl_ctx = NULL;
+            return -1;
+        }
+        if (SSL_CTX_use_PrivateKey_file(ctx->ssl_ctx, "server.key", SSL_FILETYPE_PEM) <= 0) {
+            fprintf(stderr, "[-] Failed to load private key.\n");
+            SSL_CTX_free(ctx->ssl_ctx);
+            ctx->ssl_ctx = NULL;
+            return -1;
+        }
+    }
     return 0;
 }
 
